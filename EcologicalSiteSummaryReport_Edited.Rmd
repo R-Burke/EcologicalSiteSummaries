@@ -110,7 +110,8 @@ lpi_tall <- readRDS(LPIPath)
 
 #So insert state abbreviation between " " in ALL CAPS###
 
-State_plots <- header %>% subset(SpeciesState %in% "NM") 
+#Added secondary subset for cases with species list across state lines
+State_plots <- header %>% subset(SpeciesState %in% "NM")  %>% subset(State %in% "NM")
 
 #Subset LPI to your state of interest 
 
@@ -145,12 +146,13 @@ State_plots_Year <- separate(State_plots, DateEstablished , into = c("Year" , "M
                     filter(!is.na(EcologicalSiteId)) %>% filter(!is.na(Year)) %>% arrange(EcologicalSiteId)
     
 
-EcoSitePlots <- State_plots %>% subset(EcologicalSiteId == EcoSite)
+EcoSitePlots <- State_plots %>% subset(EcologicalSiteId == EcoSite) 
 
 header_year <- separate(header, DateEstablished , into = c("Year" , "Month" , "Day"), sep = "-") %>% filter(!is.na(Latitude)) %>% 
                         subset(Latitude > 20.0000) %>% subset(Longitude < -60) 
 
 ```
+
 # 3. Where is this data coming from? <a name = "map"></a> {.tabset .tabset-fade .tabset-pills}
 ##
 ## Plot Map \
@@ -506,7 +508,7 @@ kable(Summary_Species_State_List , caption = Caption) %>% kable_styling() %>% sc
 ```
 ```{r download csv1 , echo = FALSE, results = 'asis'}
 
-write.table(Summary_Species_State_List, "./file.csv" , sep = "\t" )
+write.table(Summary_Species_State_List, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -525,7 +527,7 @@ kable(Summary_SFG_State , caption = Caption) %>% kable_styling() %>% scroll_box(
 
 ```{r download csv2 , echo = FALSE, results = 'asis'}
 
-write.table(Summary_SFG_State, "./file.csv" , sep = "\t")
+write.table(Summary_SFG_State, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -543,7 +545,7 @@ kable(NoxNNox, caption = Caption) %>% kable_styling() %>% scroll_box(height = "1
 
 ```{r download csv3 , echo = FALSE, results = 'asis'}
 
-write.table(NoxNNox, "./file.csv" , sep = "\t" )
+write.table(NoxNNox, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -561,7 +563,7 @@ kable(Summary_Woody_State, caption = Caption) %>% kable_styling() %>% scroll_box
 
 ```{r download csv4 , echo = FALSE, results = 'asis'}
 
-write.table(Summary_Woody_State, "./file.csv" , sep = "\t")
+write.table(Summary_Woody_State, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -633,7 +635,7 @@ kable(TraceCover_Table_SpList , caption = Caption) %>% kable_styling() %>% scrol
 
 ```{r download csv5 , echo = FALSE, results = 'asis'}
 
-write.table(TraceCover_Table_SpList, "./file.csv" , sep = "\t" )
+write.table(TraceCover_Table_SpList, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -744,7 +746,7 @@ kable(Summary_CoreIndicators , caption = Caption) %>% kable_styling() %>% scroll
 
 ```{r download csv6 , echo = FALSE, results = 'asis'}
 
-write.table(Summary_CoreIndicators, "./file.csv" , sep = "\t")
+write.table(Summary_CoreIndicators, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -779,7 +781,7 @@ head(Heights_Summary_Woody_Non)
 Height_Plot <- ggplot(Heights_Summary_Woody_Non, aes(x = GrowthHabit , y = AverageHeight , shape = GrowthHabitSub)) +
                         geom_boxplot() + 
                         geom_jitter(width = .1) + 
-                        scale_shape_manual(values = c(19 , 1 , 2 , 8, 3)) + 
+                        scale_shape_manual(values = c(19 , 1 , 2 , 8, 3 , 5)) + 
                         labs(x = "Growth Habit" , y =  "Average Height, cm") + coord_flip() +
                         theme_light()
 
@@ -812,7 +814,7 @@ kable(Heights_Summary_SFG) %>% kable_styling() %>% scroll_box(height = "300px")
 
 ```{r download csv7 , echo = FALSE, results = 'asis'}
 
-write.table(Heights_Summary_SFG, "./file.csv" , sep = "\t")
+write.table(Heights_Summary_SFG, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -894,7 +896,7 @@ kable(EcoSiteGaps_Summary) %>% kable_styling() %>% scroll_box(height = "300px")
 
 ```{r download csv , echo = FALSE, results = 'asis'}
 
-write.table(EcoSiteGaps_Summary, "./file.csv" , sep = "\t")
+write.table(EcoSiteGaps_Summary, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
@@ -949,13 +951,14 @@ kable(Soil_Stab_Summary) %>% kable_styling() %>% scroll_box(height = "200px")
 
 ```{r download csv9, echo = FALSE, results = 'asis'}
 
-write.table(Soil_Stab_Summary, "./file.csv" , sep = "\t" )
+write.table(Soil_Stab_Summary, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
           openssl::base64_encode() -> encoded
 ```
 
 [Click to Download CSV](`r sprintf('data:text/csv;base64,%s', encoded)`)
+
 
 
 
