@@ -15,20 +15,20 @@ knitr::opts_chunk$set(echo = FALSE)
 ##
 ## About Ecological Sites
 
-The U.S. Department of Agriculture Natural Resources Conservation Service defines ecological sites a "a distinctive kind of land with specific physical characteristics that differs from other kinds of land in its ability to produce a distinctive kind and amount of vegetation" ([USDA–NRCS, 2006](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/landuse/rangepasture/?cid=stelprdb1068392)). Ecological sites determine not only the ecological potential of a site, but also how a site can respond to natural disturbance and management actions. Ecological sites have been delineated for many areas using physical and biotic features and are often linked to soil map units. Soils, climate, hydrology, geology, physiographic features, plants species occurrences, plant community composition, annual biomass production, and plant-wildlife interactions all contribute to the formation of ecological sites.  Ecological Site Descriptions (ESDs) describe the underlying factors associated with a specific ecological site, as well as different ecological states within a given site based on factors such as grazing, fire, drought, and other management actions. For an example of an ESD, see [EDIT Jornada](https://edit.jornada.nmsu.edu/page?content=class-description&catalog=3&spatial=84&class=5802#top-bookmark). \
+The U.S. Department of Agriculture Natural Resources Conservation Service (NRCS) defines ecological sites as "a distinctive kind of land with specific physical characteristics that differs from other kinds of land in its ability to produce a distinctive kind and amount of vegetation" ([USDA–NRCS, 2006](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/landuse/rangepasture/?cid=stelprdb1068392)). Ecological sites determine not only the ecological potential of a site, but also how a site can respond to natural disturbance and management actions. Ecological sites have been delineated for many areas using physical and biotic features and are linked to soil map units. Soils, climate, hydrology, geology, physiographic features, plants species occurrences, plant community composition, annual biomass production, and plant-wildlife interactions all contribute to the proerties of ecological sites.  Ecological Site Descriptions (ESDs) describe the underlying factors associated with a specific ecological site, as well as different ecological states within a given site based on factors such as grazing, fire, drought, and other management actions. For an example of an ESD, see [EDIT Jornada](https://edit.jornada.nmsu.edu/page?content=class-description&catalog=3&spatial=84&class=5802#top-bookmark). \
 
-The overall status of an ecological site can be described with an Ecological Site Summary (ESS). A major data source for developing these summaries is the Assessment, Inventory, and Monitoring Program. The AIM program includes almost 25,000 plots throughout the western United States (*see* [AIM Data Portal](https://blm-egis.maps.arcgis.com/apps/webappviewer/index.html?id=930fff59dcd1497f87447a655b59747e)). Data garnered from AIM plots is scalable and thus applicable to management decisions at both local and national levels. At the site level, ecological site summaries generated from AIM data can tell us about the condition and health of ecological sites based on indicators such as cover by structure and functional group, species dominance, species occurrences, and canopy gap measurements. The utility of AIM data for the development of more detailed ESDs and ecological state mapping is continually increasing as the program continues to grow. Assigning individual plots or regions ecological states allows us to not only determine the degree of departure from the reference ecological state, but also to inform management and restoration actions accordingly by determining the best pathway to a less degraded state. For more on state and transition models, see [Bestelmeyer et al., 2017](https://link.springer.com/content/pdf/10.1007%2F978-3-319-46709-2_9.pdf). \
+## Ecological Site Summary
 
-Using R and TerrAdat to create these summaries allows them to be continually updated as new data becomes available each year. This information can be included in decision making processess for BLM managers, as it can help inform land use plans, grazing permit renewals, shrub or invasive species treatments, and/or seed menu development for ecological restoration and reclamation. In cases where ESDs are not developed, grouping AIM data by other features can provide similar information, and potentially lead to the development of new ESDs. It may be informative to group by features such as watershed units, soil map units, biophysical settings, or grazing allotments. \
+The overall status of monitoring data within an ecological site can be described with an Ecological Site Summary (ESS). At the site level, ecological site summaries generated from monitoring data can tell us about the condition and health of ecological sites based on indicators such as cover by structure and functional group, species dominance, species occurrences, and canopy gap measurements. Identifying individual plot's or region's ecological states allows us to not only determine the degree of departure from the corresponding reference ecological states, but also to inform management and restoration actions accordingly by determining the best pathway to a less degraded state. For more on state and transition models (STMs), see see [Bestelmeyer et al., 2017](https://link.springer.com/content/pdf/10.1007%2F978-3-319-46709-2_9.pdf). A major data source for developing these summaries is the Assessment, Inventory, and Monitoring Program. The AIM program includes almost 25,000 plots throughout the western United States (*see* [AIM Data Portal](https://blm-egis.maps.arcgis.com/apps/webappviewer/index.html?id=930fff59dcd1497f87447a655b59747e)) stored in the Terrestrial AIM Database (TerrADat). Data garnered from AIM plots is both generalizable and scalable and thus applicable to management decisions at both local and national levels. \
+
+Ecological site summaries are generated using an [R script](https://github.com/R-Burke/EcologicalSiteSummaries/blob/master/EcologicalSiteSummaryReport_Edited.Rmd). Because this is an automatied process, ESS can be continually updated as new data becomes available each year or as lines of inquiry shift. This ESS information can be included in decision making processes for BLM managers, as it can help inform land use plans, grazing permit renewals, shrub or invasive species treatments, and/or seed menu development for ecological restoration and reclamation. In cases where ESDs are not developed, grouping AIM data by other features can provide similar information, and potentially lead to the development of new ESDs. It may be informative to group by features such as watershed units, soil map units, biophysical settings, or grazing allotments.\
+
 
 This demo uses data from New Mexico, but is applicable to any state with an available species list. \
 
-# 2. Prepping the Data <a name="dataprep"></a> {.tabset .tabset-fade .tabset-pills}
-##
-## Required Inputs 
+# 2. About Boxplots {.tabset .tabset-fade .tabset-pills}
 
-To generate these reports, several inputs are required. These include your state, your ecological site(s) of interest, and directions to the directories containing raw tables from TerrADat. Tall tables are required for this code. These can be requested from the Jornada, or established using the tidyr::gather() function on the raw tables in R. After directing the tool to the right place and specifying your state and ecological site, these reports are automated. \
-*Note: these reports only work with a state species list.*
+Boxlots are used in these reports to summarize cover values into quartiles while keeping outliers visible. The following image explains how to interpret a boxplot. 
 
 ``` {r ESS Demo, echo = FALSE, include = FALSE}
 
@@ -42,14 +42,35 @@ library(kableExtra)
 library(leaflet)
 library(patternplot)
 library(magrittr)
+library(xlsx)
+library(rJava)
 
 ```
+
+##
+## Boxplot
+
+```{r boxlot fig , include = TRUE , fig.height = 6 , fig.width = 8 , echo = FALSE , fig.cap = "1 Modified from: https://www.wellbeingatschool.org.nz/information-sheet/understanding-and-interpreting-box-plots  (accessed 22 Aug2019)" }
+
+knitr::include_graphics("C:/Users/rburke/Documents/RFiles/EcologicalSiteSummaryDemo/boxplot_text.png")
+
+
+```
+
+# 3. Prepping the Data {.tabset .tabset-fade .tabset-pills}
+
+##
+## Required Inputs 
+
+To generate these reports, several inputs are required. These include your state, your ecological site(s) of interest, and directions to the directories containing raw tables from TerrADat. Tall tables are required for this code. These can be requested from the Jornada, or established using the tidyr::gather() function on the raw tables in R. After directing the tool to the right place and specifying your state and ecological site, these reports are automated. \
+*Note: these reports only work with a state species list.*
+
 
 ## Define your ecological site(s) and file paths <a name = "filepaths"></a>
 
 ```{r Load Data , echo = TRUE , include = TRUE}
 
-#Define the Ecological Site you are intereseted in
+#Define the Ecological Site you are interested in
 
 EcoSite <- "R042XB012NM"
 
@@ -63,7 +84,7 @@ State <- "NM"
 Plot_Map <- "New Mexico Plots" #point label for the map later, i.e. what do you want the map to say? 
 
 #Caption to use in your tables and plots
-Caption <- "Cover Summaries for Ecological Site R042XB012NM" 
+Caption <- paste("Cover Summaries for Ecological Site" , EcoSite) 
 
 #Define the path to the geodatabase that contains your species list
 
@@ -111,13 +132,12 @@ lpi_tall <- readRDS(LPIPath)
 #So insert state abbreviation between " " in ALL CAPS###
 
 #Added secondary subset for cases with species list across state lines
-State_plots <- header %>% subset(SpeciesState %in% "NM")  %>% subset(State %in% "NM")
+State_plots <- header[header[["State"]] %in% State, ]
 
 #Subset LPI to your state of interest 
 
 State_lpi <- lpi_tall %>% subset(PrimaryKey %in% State_plots$PrimaryKey)
-State_lpi$SpeciesState <- "NM" #### You also have to insert state here###
-
+State_lpi$SpeciesState <- State 
 
 ```
 
@@ -125,9 +145,10 @@ State_lpi$SpeciesState <- "NM" #### You also have to insert state here###
 #Read in your state species list as an object 
 #(you'll need this later on)
 
-StateSpecies<- sf::st_read(dsn = SpeciesFile ,  
-                             layer = "tblStateSpecies") %>%
-                             subset(SpeciesState == State) %>% rename(Species = SpeciesCode)
+SpeciesList<- sf::st_read(dsn = SpeciesFile ,  
+                             layer = "tblStateSpecies") 
+
+StateSpecies <- SpeciesList %>% subset(SpeciesState == State) %>% rename(Species = SpeciesCode)
 
 # Join with the species list for species calculations
 # You may want to summarize percent cover values for specific species, indicators, or structure and functional groups. 
@@ -153,7 +174,7 @@ header_year <- separate(header, DateEstablished , into = c("Year" , "Month" , "D
 
 ```
 
-# 3. Where is this data coming from? <a name = "map"></a> {.tabset .tabset-fade .tabset-pills}
+# 4. Where is this data coming from? <a name = "map"></a> {.tabset .tabset-fade .tabset-pills}
 ##
 ## Plot Map \
 
@@ -200,9 +221,9 @@ Map
 
 ```
 
-# 4. Species Cover Summaries <a name = "species"></a> {.tabset .tabset-fade .tabset-pills}
+# 5. Species Cover Summaries <a name = "species"></a> {.tabset .tabset-fade .tabset-pills}
 
-These summaries use data from line point intercept methods to determine average cover of individual species, as well as summaries by structure and functional group cover, noxious versus non-noxious cover, and woody vs. non-woody cover. From the AIM data, we can make some simple graphs showing cover values. These graphs, along with the summary tables, can quickly be incorporated into any documents where this data is used (i.e. NEPA documents for grazing permit renewals, shrub treatments, etc). 
+These summaries use data from Line-point intercept (LPI) method to determine average cover of individual species, as well as summaries by structure and functional group cover, noxious versus non-noxious cover, and woody vs. non-woody cover. From the AIM data, we can make some simple figures showing cover values. These figures, along with the summary tables, can quickly be incorporated into any documents where this data is used (i.e. NEPA documents for grazing permit renewals, shrub treatments, etc).
 
 ``` {r Species Code , echo = FALSE, include = FALSE}
 
@@ -245,7 +266,6 @@ Cover_EcoSite_State_Species_List <- merge(Percent_Cover_State_Species_List, Stat
 
 Cover_EcoSite_State_Species_List <- Cover_EcoSite_State_Species_List %>% rename(Species = code) %>% subset(percent > 0.000000) %>% mutate(Tally = 1)
 
-head(Cover_EcoSite_State_Species_List)
 
 Summary_Species_State <- Cover_EcoSite_State_Species_List %>% 
                          group_by(EcologicalSiteId, Species) %>%
@@ -279,30 +299,81 @@ Cover_EcoSite_State_Species_Subset <- Cover_EcoSite_State_Species_List %>% subse
 
 #For an overview of all cover across this ecological site
 
-Cover <- c("Cover")
+SFG_Plot_Prep <- Cover_EcoSite_State_Species_Subset %>% group_by(GrowthHabit , GrowthHabitSub, Duration) %>% rename(Percent = percent) 
 
-SFG_Plot_Prep <- Cover_EcoSite_State_Species_Subset %>% group_by(GrowthHabitSub , Duration) %>% rename(Percent = percent)
+NoxNonPal_Fill <- c("grey75"  , "#D55E00")
 
+NoxNonPal_Dot <- c("black" , "#993300")
 
-SFG_Plot <- ggplot(data = SFG_Plot_Prep, aes(x = GrowthHabitSub , y = Percent, shape = Noxious , fill = Duration)) +
+SFG_Plot <- ggplot(data = SFG_Plot_Prep, aes(x = GrowthHabitSub , y = Percent)) +
                                                                   geom_boxplot(width = .6 , outlier.shape = NA) +
-                                                                  geom_jitter(width = .1 , size = 1) + theme_light() + 
-                                                                  scale_fill_manual(values = c("gray31" , "gray88")) + 
-                                                                  scale_shape_manual(values = c(19 , 1)) + 
-                                                                  scale_y_continuous(limits = c(0 , 100)) + 
-                                                                  coord_flip() 
+                                                                  geom_jitter(width = .45 , size = 1.25, aes(color = Noxious)) + 
+                                                                  scale_color_manual(values = NoxNonPal_Dot) +   
+                                                                  theme_light() + 
+                                                                  scale_y_continuous(limits = c(0 , 100)) +
+                                                                  labs(y = "Percent Cover") + 
+                                                                  theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                                                                  axis.line.y = element_blank()) + theme(panel.grid.major.y = element_blank()) +
+                                                                  coord_flip() + facet_grid(rows = vars(GrowthHabitSub) , 
+                                                                                            cols = vars(Duration) , switch = "y" , 
+                                                                                            scales = "free" , drop = TRUE) 
                                                                   
+
+GrassForb <- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Graminoid" | GrowthHabitSub == "Forb")
+
+
+# Pulling out grass/forb vs. only perennial plants.
+
+SFG_GrassForb_Plot <- ggplot(data = GrassForb , aes(x = GrowthHabitSub , y = percent)) +
+                                                                  geom_boxplot(width = .6 , outlier.shape = NA) +
+                                                                  geom_jitter(width = .45 , size = 1.25, aes(color = Noxious)) + 
+                                                                  scale_color_manual(values = NoxNonPal_Dot) +   
+                                                                  theme_light() + 
+                                                                  labs(y = "Percent Cover") + 
+                                                                  scale_y_continuous(limits = c(0 , 100)) +
+                                                                  theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                                                                  axis.line.y = element_blank()) + theme(panel.grid.major.y = element_blank()) +
+                                                                  coord_flip() + facet_grid(rows = vars(GrowthHabitSub) , 
+                                                                                            cols = vars(Duration) , switch = "y" , 
+                                                                                            scales = "free" , drop = TRUE) 
+
+
+All_woody_vars <- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "SubShrub" | GrowthHabitSub == "Shrub" |
+                                                           GrowthHabitSub == "Succulent" | GrowthHabitSub == "Tree")
+
+
+SFG_Woody_Plot <- ggplot(data = All_woody_vars, aes(x = GrowthHabitSub , y = percent)) +
+                                       geom_boxplot(width = .6 , outlier.shape = NA) +
+                                       geom_jitter(width = .45 , size = 1.25, aes(color = Noxious)) + 
+                                       scale_color_manual(values = NoxNonPal_Dot) +   
+                                       theme_light() + 
+                                       labs(y = "Percent Cover") + 
+                                       scale_y_continuous(limits = c(0 , 100)) +
+                                       coord_flip() + facet_grid(rows = vars(GrowthHabitSub) , 
+                                       switch = "y" , 
+                                       scales = "free_y" , drop = TRUE)
                                                                   
 #Noxious vs NonNoxious Cover Plot
 
-Nox_Non <- (Cover_EcoSite_State_Species_List) %>% group_by(Noxious) %>% filter(!is.na(Noxious)) %>% rename(Percent = percent)
+Nox_Non <- (Cover_EcoSite_State_Species_List) %>% group_by(Noxious) %>% filter(!is.na(Noxious)) %>% rename(Percent = percent) 
 
-Nox_Non_Plot <- ggplot(data = Nox_Non , (aes(x = Noxious , y = Percent, shape = Noxious))) +
+Nox_Non$Noxious <- gsub("YES" , "Yes", Nox_Non$Noxious) 
+
+Nox_Non$Noxious <- gsub("NO", "No", Nox_Non$Noxious)
+
+Nox_Non_Plot <- ggplot(data = Nox_Non , (aes(x = Noxious , y = Percent))) +
                                                  geom_boxplot(width = .6 , outlier.shape = NA) +
-                                                 geom_jitter(width = .15) + theme_light() + 
-                                                 scale_shape_manual(values = c(19 , 1)) +
+                                                 geom_jitter(width = .15 , size = 1.25 , aes(color = Noxious)) + 
+                                                 scale_color_manual(values = NoxNonPal_Dot) +
+                                                 theme_light() + 
                                                  scale_y_continuous(limits = c(0 , 100)) + 
-                                                 coord_flip() 
+                                                 labs(x = "Noxious" , y = "Percent Cover") +
+                                                 theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                                                                  axis.line.y = element_blank()) + theme(panel.grid.major.y = element_blank()) +
+                                                                  coord_flip() + facet_grid(rows = vars(Noxious) , 
+                                                                  switch = "y" , scales = "free" , drop = TRUE) +
+                                                 theme(legend.position = "none")
+
 
 #Subsetting grass and forb so we can separate annual and perennial species
 
@@ -310,127 +381,118 @@ Nox_Non_Plot <- ggplot(data = Nox_Non , (aes(x = Noxious , y = Percent, shape = 
 
 Grass <- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Graminoid")
 
+Forb <- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Forb") 
+
+
+Grass_names <- c("Annual" = "Annual Grass" , "Perennial" = "Perennial Grass")
+
+Forb_names <- c("Annual" = "Annual Forb" , "Perennial" = "Perennial Forb")
+
+
 PerennialGrass <- Grass %>% subset(Duration == "Perennial") %>% rename(Percent = percent)
+
 
 AnnualGrass <- Grass %>% subset(Duration == "Annual") %>% rename(Percent = percent)
 
-Forb <- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Forb") 
 
 PerennialForb <- Forb %>% subset(Duration == "Perennial") %>% rename(Percent = percent)
+
 
 AnnualForb <- Forb %>% subset(Duration == "Annual") %>% rename(Percent = percent)
 
 
-AnnualGrassPlot <- ggplot(AnnualGrass ,(aes(x = Species , y = Percent , shape = Noxious))) +
+#Grass plots
+
+AnnualGrassPlot <- ggplot(data = AnnualGrass , aes(x = Species , y = Percent , fill = Noxious)) +
                     geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
+                    geom_jitter(width = .15 , size = 1 , aes(color = Noxious)) + 
+                    scale_color_manual(values = NoxNonPal_Dot) +
+                    scale_fill_manual(values = NoxNonPal_Fill) +
                     theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) + 
-                    labs(y = "Annual Grass Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
+                    labs(y = "Percent Cover" , x = "Species") +
+                    coord_flip() +  facet_grid(cols = vars(Duration) , 
+                    switch = "y" , scales = "free_y" , drop = TRUE , labeller = as_labeller(Grass_names)) 
 
-
-
-PerennialGrassPlot <- ggplot(PerennialGrass ,(aes(x = Species , y = Percent , shape = Noxious))) +
+PerennialGrassPlot <- ggplot(PerennialGrass , aes(x = Species , y = Percent , fill = Noxious)) +
                     geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
+                    geom_jitter(width = .15 , size = 1 , aes(color = Noxious)) + 
+                    scale_color_manual(values = NoxNonPal_Dot) +
+                    scale_fill_manual(values = NoxNonPal_Fill) +
                     theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs( y = "Perennial Grass Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
+                    labs(y = "Percent Cover" , x = "Species") +
+                    coord_flip() + facet_grid(cols = vars(Duration) , 
+                    switch = "y" , scales = "free_y" , drop = TRUE , labeller = as_labeller(Grass_names)) 
 
-AnnualForbPlot <- ggplot(AnnualForb,(aes(x = Species , y = Percent , shape = Noxious))) +
-                    geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
-                    theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "Annual Forb Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
+## Forb plots
 
-PerennialForbPlot <- ggplot(PerennialForb,(aes(x = Species , y = Percent , shape = Noxious))) +
+AnnualForbPlot <- ggplot(data = AnnualForb , aes(x = Species , y = Percent , fill = Noxious)) +
                     geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
+                    geom_jitter(width = .15 , size = 1 , aes(color = Noxious)) + 
+                    scale_color_manual(values = NoxNonPal_Dot) +
+                    scale_fill_manual(values = NoxNonPal_Fill) +
+                    theme_light() +  
+                    labs(y = "Percent Cover" , x = "Species") +
+                    coord_flip() +  facet_grid(cols = vars(Duration) , 
+                    switch = "y" , scales = "free" , drop = TRUE , labeller = as_labeller(Forb_names)) 
+
+PerennialForbPlot <- ggplot(PerennialForb , aes(x = Species , y = Percent , fill = Noxious)) +
+                    geom_boxplot(width = .6 , outlier.shape = NA) +
+                    geom_jitter(width = .15 , size = 1 , aes(color = Noxious)) + 
+                    scale_color_manual(values = NoxNonPal_Dot) +
+                    scale_fill_manual(values = NoxNonPal_Fill) +
                     theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "Perennial Forb Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
+                    labs(y = "Percent Cover" , x = "Species") +
+                    coord_flip() + facet_grid(cols = vars(Duration) , 
+                    switch = "y" , scales = "free" , drop = TRUE , labeller = as_labeller(Forb_names)) 
+
+
 
 #Plot remaining SFGs (tree, shrub, subshrub, succulent)
 
 
-#SubShrub
-
-SubShrub<- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "SubShrub") %>% rename(Percent = percent)
-
-SubShrubPlot <- ggplot(SubShrub,(aes(x = Species , y = Percent , shape = Noxious))) +
-                    geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
-                    theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "SubShrub Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
-
-#Shrub
+All_Woody_Plot <- ggplot(data = All_woody_vars, aes(x = Species , y = percent , fill = Noxious)) +
+                                       geom_boxplot(width = .6 , outlier.shape = NA) +
+                                       geom_jitter(width = .15 , size = 1.25, aes(color = Noxious)) + 
+                                       scale_color_manual(values = NoxNonPal_Dot) +  
+                                       scale_fill_manual(values = NoxNonPal_Fill) +
+                                       theme_light() + 
+                                       labs(y = "Percent Cover") + 
+                                       coord_flip() + facet_grid(rows = vars(GrowthHabitSub) , 
+                                       switch = "y" , 
+                                       scales = "free" , drop = TRUE)
 
 
-Shrub<- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Shrub") %>% rename(Percent = percent)
-
-ShrubPlot <- ggplot(Shrub,(aes(x = Species , y = Percent , shape = Noxious))) +
-                    geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
-                    theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "Shrub Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
-
-#Tree 
-
-Tree<- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Tree") %>% rename(Percent = percent)
-
-TreePlot <- ggplot(Tree,(aes(x = Species , y = Percent , shape = Noxious))) +
-                    geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
-                    theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "Tree Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
-
-#Succulent
-
-Succulent<- Cover_EcoSite_State_Species_Subset %>% subset(GrowthHabitSub == "Succulent") %>% rename(Percent = percent)
-
-SucculentPlot <- ggplot(Succulent,(aes(x = Species , y = Percent , shape = Noxious))) +
-                    geom_boxplot(width = .6 , outlier.shape = NA) +
-                    geom_jitter(width = .15) + 
-                    scale_shape_manual(values = c(19 , 1)) +
-                    theme_light() + 
-                    scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "Succulent Cover (%)" , x = "Species") +
-                    coord_flip() + theme(aspect.ratio = 1)
 
 ```
 ##
 
-## Plots <a name = "plots"></a> {.tabset .tabset-fade .tabset-pills}
+## Plots {.tabset .tabset-fade .tabset-pills}
+
 ###
-### Cover by Functional Group <a name = "functionalgroup"></a>
 
-```{r SFG plots , fig.height = 4 , fig.width = 10 , echo = FALSE, include = TRUE}
+### Cover by Functional Group {.tabset .tabset-fade .tabset-pills}
 
-SFG_Plot 
+####
+
+#### Grasses and Forbs
+
+```{r SFG plots , fig.height = 5 , fig.width = 10 , echo = FALSE, include = TRUE}
+
+SFG_GrassForb_Plot
 
 ```
 
-### Cover by Noxious, Non-Noxious Species <a name = "noxplot"></a>
+#### Woody Plants
 
-```{r nox plots , fig.height = 2 , fig.width = 10 , echo = FALSE, include = TRUE}
+```{r SFG plots2 , fig.height = 5 , fig.width = 10 , echo = FALSE, include = TRUE}
+
+SFG_Woody_Plot
+
+```
+
+### Cover by Noxious, Non-Noxious Species 
+
+```{r nox plots , fig.height = 4 , fig.width = 10 , echo = FALSE, include = TRUE}
 
 Nox_Non_Plot
 
@@ -438,19 +500,27 @@ Nox_Non_Plot
 
 ### Cover by Species <a name = "species"></a> {.tabset .tabset-fade .tabset-pills}
 
-#### Annual and Perennial Grasses and Forbs <a name = "grassforb"></a>
+#### Annual and Perennial Grasses
 
-```{r species plots , fig.height = 8 , fig.width = 10 , echo = FALSE, include = TRUE , results = 'asis'}
+```{r species plots , fig.height = 6 , fig.width = 10 , echo = FALSE, include = TRUE , results = 'asis'}
 
-gridExtra::grid.arrange(AnnualGrassPlot , PerennialGrassPlot , AnnualForbPlot , PerennialForbPlot , ncol = 2 , nrow = 2)
+gridExtra::grid.arrange(AnnualGrassPlot , PerennialGrassPlot , nrow = 1 , ncol = 2)
+
+```
+
+#### Annual and Perennial Forbs
+
+```{r species plots2 , fig.height = 6 , fig.width = 10 , echo = FALSE, include = TRUE , results = 'asis'}
+
+gridExtra::grid.arrange(AnnualForbPlot , PerennialForbPlot , nrow = 1 , ncol = 2)
 
 ```
 
 #### Shrubs, Sub-shrubs, Trees, and Succulents <a name = "woody"></a>
 
-```{r woody plots , fig.height = 8 , fig.width = 10 , echo = FALSE, include = TRUE}
+```{r woody plots , fig.height = 6 , fig.width = 10 , echo = FALSE, include = TRUE}
 
-gridExtra::grid.arrange(ShrubPlot , SubShrubPlot , SucculentPlot , TreePlot ,  ncol = 2 , nrow = 2)
+All_Woody_Plot
 
 ```
 
@@ -511,7 +581,7 @@ kable(Summary_Species_State_List , caption = Caption) %>% kable_styling() %>% sc
 write.table(Summary_Species_State_List, "./file.csv" , sep = "\t" , row.names = FALSE)
 readLines("./file.csv") %>%
           paste0(collapse="\n") %>%
-          openssl::base64_encode() -> encoded
+          openssl::base64_encode() -> encoded            #figure out how to encode xlsx
 ```
 
 [Click to Download CSV](`r sprintf('data:text/csv;base64,%s', encoded)`)
@@ -644,9 +714,9 @@ readLines("./file.csv") %>%
 [Click to Download CSV](`r sprintf('data:text/csv;base64,%s', encoded)`)
 
 
-# 5. Ground Cover Summaries {.tabset .tabset-fade .tabset-pills}
+# 6. Ground Cover Summaries {.tabset .tabset-fade .tabset-pills}
 
-On top of species-specific indicators, we can summarize ground cover indicators to get percent cover values for bare ground, total rock, total litter, and total foliar. Additional indicators that can be included here are Lichen ("LC") , Moss ("M") , Duff ("D"), and/or Cyanobacteria ("CY"). These calculations are informative for assessing the status of the ecological site as a whole, susceptibility to erosion, and/or cross-walking AIM data to [Rangeland Health Assessments](https://www.landscapetoolbox.org/manuals/iirhv5/) when used in conjunction with species specific calculations. 
+In addition to species-specific indicators, we can summarize ground cover indicators to get percent cover values for bare ground, total rock, total litter, and total foliar. Additional indicators that can be included here are Lichen ("LC") , Moss ("M") , Duff ("D"), and/or Cyanobacteria ("CY"). These calculations are informative for assessing the status of the ecological site as a whole, susceptibility to erosion, and/or cross-walking AIM data to [Rangeland Health Assessments](https://www.landscapetoolbox.org/manuals/iirhv5/) when used in conjunction with species specific calculations. 
 
 ```{r CoreIndicators , echo = FALSE , include = FALSE}
 
@@ -717,14 +787,22 @@ Summary_CoreIndicators <- CoreIndicators_Main %>% group_by(EcologicalSiteId, Ind
                                              High = max(Percent)) %>%
                                              mutate_if(is.numeric, round , digits = 2)
 
+
+Indicator_names <- c("TotalFoliarCover" = "Total Foliar" , "BareSoil" = "Bare Soil" ,
+                  "TotalLitter" = "Total Litter" , "TotalRock" = "Total Rock")
+
 Core_Plot <- ggplot(CoreIndicators_Main , (aes(x = Indicator , y = Percent))) +
                     geom_boxplot(width = .6 , outlier.shape = NA) +
                     geom_jitter(width = .15) + 
                     theme_light() + 
                     scale_y_continuous(limits = c(0 , 100)) +
-                    labs(y = "Ground Cover (%)" , x = "Indicator") +
-                    coord_flip() + theme(aspect.ratio = 1)
-
+                    labs(y = "Ground Cover (%)" , x = "Indicator") + 
+                    theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                    axis.line.y = element_blank()) +
+                    coord_flip() + facet_grid(rows = vars(Indicator) , 
+                    switch = "y" , 
+                    scales = "free_y" , drop = TRUE , labeller = as_labeller(Indicator_names)) 
+             
 ```
 ##
 ## Ground Cover Plot 
@@ -755,7 +833,7 @@ readLines("./file.csv") %>%
 [Click to Download CSV](`r sprintf('data:text/csv;base64,%s', encoded)`)
 
 
-# 6. Vegetation Heights {.tabset .tabset-fade .tabset-pills}
+# 7. Vegetation Heights {.tabset .tabset-fade .tabset-pills}
 
 Looking at height data in conjunction with canopy gap data helps inform the vegetation structure across a site. 
 
@@ -778,12 +856,16 @@ Heights_Summary_Woody_Non %>% arrange(desc(AverageHeight))
 
 head(Heights_Summary_Woody_Non)
 
-Height_Plot <- ggplot(Heights_Summary_Woody_Non, aes(x = GrowthHabit , y = AverageHeight , shape = GrowthHabitSub)) +
+Height_Plot <- ggplot(Heights_Summary_Woody_Non, aes(x = GrowthHabit , y = AverageHeight)) +
                         geom_boxplot() + 
                         geom_jitter(width = .1) + 
-                        scale_shape_manual(values = c(19 , 1 , 2 , 8, 3 , 5)) + 
-                        labs(x = "Growth Habit" , y =  "Average Height, cm") + coord_flip() +
-                        theme_light()
+                        labs(x = "Growth Habit" , y =  "Average Height, cm") + 
+                        theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                        axis.line.y = element_blank()) +
+                        coord_flip() +
+                        theme_light() + facet_grid(rows = vars(GrowthHabitSub) , 
+                        switch = "y" , 
+                        scales = "free_y" , drop = TRUE) 
 
 Heights_Summary_SFG <- HgtPrep %>% group_by(GrowthHabitSub , Duration) %>%
                        summarize(AverageHeight = mean(Hgt_Species_Avg) , 
@@ -823,9 +905,9 @@ readLines("./file.csv") %>%
 [Click to Download CSV](`r sprintf('data:text/csv;base64,%s', encoded)`)
 
 
-# 7. Canopy Gap  {.tabset .tabset-fade .tabset-pills}
+# 8. Canopy Gap  {.tabset .tabset-fade .tabset-pills}
 
-Canopy gap intercept can inform us about potential wind erosion, weed invasion, and wildlife habitat. When combined with vegetation height measurements, gap measurements can inform us about vegetation structure (see p. 41 in the [Monitoring Manual](aim.landscapetoolbox.org) for methods). Canopy gap, bare soil, and vegetation heights can also be used to determine thresholds at which vegetation structure may lead to a shift in ecoloogical states. 
+Canopy gap intercept can inform us about potential wind erosion, weed invasion, and wildlife habitat. When combined with vegetation height measurements, gap measurements can inform us about vegetation structure (see p. 41 in the [Monitoring Manual](aim.landscapetoolbox.org) for methods). Canopy gap, bare soil, and vegetation heights can also be used to determine thresholds at which vegetation structure may lead to a shift in ecological states. 
 
 ```{r Gap , echo = FALSE , include = FALSE}
 
@@ -863,11 +945,16 @@ EcoSiteGaps  <- merge(State_plots, gap_calc, by = "PrimaryKey") %>% subset(Ecolo
 
 gap_gather<- gather(data = EcoSiteGaps , key = "Gap_Class" , value = "Percent")
 
+Gap_Names <- c("GapCover_25_50" = "25_25" , "GapCover_51_100" = "51_100" , "GapCover_101_200" = "101_200" , "GapCover_200_plus" = "200_plus" , "GapCover_25_plus" = "25_plus")
 
 Gaps_Plot <- ggplot(data = gap_gather , aes(x = Gap_Class , y = Percent)) + 
                                          labs(y = "Percent" , x = "Gap Size Class") +
                                          geom_boxplot() + coord_flip() + geom_jitter(width = 0.1) +
-                                         theme_light()
+                                         theme_light() +
+                                         theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                                         axis.line.y = element_blank()) + theme(panel.grid.major.y = element_blank()) +
+                                         facet_grid(rows = vars(Gap_Class) , switch = "y" , 
+                                         scales = "free_y" , drop = TRUE , labeller = as_labeller(Gap_Names)) 
 
 EcoSiteGaps_Summary <- gap_gather %>% group_by(Gap_Class) %>%
                        summarize(AveragePercentCover = mean(Percent) , 
@@ -877,6 +964,7 @@ EcoSiteGaps_Summary <- gap_gather %>% group_by(Gap_Class) %>%
                                  mutate_if(is.numeric, round , digits = 2)
 
 ```
+
 ##
 ## Canopy Gap Size Class Plot <a name = "gapplot"></a>
 
@@ -905,7 +993,7 @@ readLines("./file.csv") %>%
 [Click to Download CSV](`r sprintf('data:text/csv;base64,%s', encoded)`)
 
 
-# 8. Soil Stability  {.tabset .tabset-fade .tabset-pills}
+# 9. Soil Stability  {.tabset .tabset-fade .tabset-pills}
 
 Soil stability provides information on soil structure development and resistance to erosion. The soil stability test measures the soil's stability when exposed to rapid wetting, and reflects soil biotic integrity (see page 47 in the [Monitoring Manual](aim.landscapetoolbox.org).)
 
@@ -930,12 +1018,16 @@ Soil_Stab_Summary <- SoilStab_EcoSite %>% group_by(Veg) %>% summarize(AverageSoi
 Soil_Stab_Plot <- ggplot(data = SoilStab_EcoSite , aes(x = Veg , y = rating)) +
                          labs(x = "Veg Cover" , y = "Soil Stability Rating") +
                          geom_boxplot() + coord_flip() + geom_jitter(width = 0.1) +
-                         theme_light()
+                         theme_light() +
+                         theme(axis.text.y = element_blank() , axis.ticks.y = element_blank() , 
+                         axis.line.y = element_blank()) + theme(panel.grid.major.y = element_blank()) +
+                         facet_grid(rows = vars(Veg) , switch = "y" , 
+                         scales = "free_y" , drop = TRUE)
 ```
 ##
 ## Soil Stability Summary Plot 
 
-```{r soil stab plot , echo = FALSE , include = TRUE , fig.height = 6 , fig.width = 6}
+```{r soil stab plot , echo = FALSE , include = TRUE , fig.height = 4 , fig.width = 10}
 
 Soil_Stab_Plot
 
