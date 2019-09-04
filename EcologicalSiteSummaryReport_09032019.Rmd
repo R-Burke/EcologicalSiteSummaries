@@ -27,7 +27,7 @@ p.caption {
 
 ```{r banner , fig.height = 4 , fig.width = 10 , fig.cap= "photo by Patrick Alexander"}
 
-knitr::include_graphics("C:/Users/rburke/Documents/Playa.jpg")
+knitr::include_graphics("~/Playa.jpg")
 
 ```
 
@@ -75,7 +75,7 @@ library(raster)
 
 ```{r boxlot fig , include = TRUE , fig.height = 6 , fig.width = 8 , echo = FALSE , fig.cap = "1 Modified from: https://www.wellbeingatschool.org.nz/information-sheet/understanding-and-interpreting-box-plots  (accessed 22 Aug2019)" }
 
-knitr::include_graphics("C:/Users/rburke/Documents/RFiles/EcologicalSiteSummaryDemo/boxplot_text.png")
+knitr::include_graphics("~/EcologicalSiteSummaryDemo/boxplot_text.png")
 
 
 ```
