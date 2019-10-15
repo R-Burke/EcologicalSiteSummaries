@@ -1,8 +1,7 @@
 ---
 title: "Ecological Site Summaries" 
 subtitle: "Using Assessment, Inventory, and Monitoring Data"
-author: "Rachel Burke, Jornada"
-date: "09/04/2019"
+date: "10/15/2019"
 output:
   html_document:
     theme: cosmo
