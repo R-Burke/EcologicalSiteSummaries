@@ -99,39 +99,17 @@ library(plotly)
 State <- "CA"
 #Define your ecological site
 EcoSite <- c("R023XF082CA")
-
-#The rest of this report is automated. You can now run the report. 
-#When you click knit to html, save as a .Rmd file. 
-
 ```
 
 ##### Connect to AIM Pub
 
-*This is only for visualization of the database connection. This section requires no changes.*
+*Copy and paste the file paths from your template html document below*
 
 ```{r pub connection , echo = TRUE , include = TRUE}
 
-#Establish your SQL connection
-
-conn <- odbcConnect("ilmocAIMPub")
-
-#Connect to TerrADat
-TerrADat <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADat;')
-
-#Connect to LMF
-LMF <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMF;')
-
-#Connect to TerrADat Species Indicator
-TerrADat_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADatSpeciesIndicators;')
-
-#Connect to LMF Species Indicator
-LMF_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMFSpeciesIndicators;')
-
-#Connect to species list
-SpeciesList <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.tblStateSpecies;')
+#Copy and paste the database and file paths from your template document here
 
 ```
-
 
 ```{r get LMF and TDat happy , echo = FALSE , include = FALSE}
 
