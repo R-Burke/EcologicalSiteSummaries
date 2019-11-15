@@ -60,7 +60,7 @@ Download the RMarkdown script and supporting files by downloading the full Ecolo
 ##### Starting a project in R
 Open the ESS_BLM.Rmd file that's in the repository you unzipped to your local drive. Open the file using RStudio. The supporting documents in this folder will be necessary to run the script. This is an RMarkdown script with an HTML output. 
 
-Read this document alongside the RMarkdown script. If you don't know how to start a project in RMarkdown, see the tutorial in the repository folder.  
+Read this document alongside the RMarkdown script.   
 
 ##### Install Packages
 
