@@ -6,6 +6,8 @@ date: "11/21/2019"
 output:
   html_document:
     theme: cosmo
+params: 
+  EcoSite: "R042XB012NM" 
 
 ---
 
@@ -74,7 +76,9 @@ To generate these reports, you need to specify your ecological site(s) of intere
 
 #Define your ecological site
 
-EcoSite <- c("R024XY016OR")
+#EcoSite <- c("R024XY016OR")
+
+EcoSite <- params$EcoSite
 
 #If you want to summarize multiple ecological sites, list them between the ()
 #i.e. to group Sandy and Shallow sandy sites- 
@@ -82,6 +86,25 @@ EcoSite <- c("R024XY016OR")
 
 ```
 
+##### Connect to the database
+
+The script on GitHub has file pathways omitted for security issues. You will need to copy and paste the appropriate file paths at the beginning of the script.
+
+*Copy and paste the following commands* in the code chunk starting under **line 116**.
+
+conn <- odbcConnect("ilmocAIMPub")
+
+TerrADat <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADat;')
+
+LMF <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMF;')
+
+TerrADat_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADatSpeciesIndicators;')
+
+LMF_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMFSpeciesIndicators;')
+
+SpeciesList <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.tblStateSpecies;')
+
+odbcClose(conn)
 
 ``` {r ESS Demo, echo = FALSE, include = FALSE}
 
@@ -113,6 +136,55 @@ library(plotly)
 
 ```{r pub connection , echo = FALSE , include = FALSE}
 
+#Connect to TerrADat
+
+#Set file path to TerrADat
+
+TerrADatPath <- "C:/Users/rburke/GDBs/SDE_Export.gdb"
+                #The state species list table should also live in this geodatabase
+
+TerrADat <- rgdal::readOGR(dsn = TerrADatPath , "TerrADat")
+
+LMF <- rgdal::readOGR(dsn = TerrADatPath , "LMF")
+
+TerrADat_Species <- rgdal::readOGR(dsn = TerrADatPath , "TerrADatSpeciesIndicators")
+
+LMF_Species <- rgdal::readOGR(dsn = TerrADatPath , "LMFSpeciesIndicators")
+
+#get species list for full names
+
+SpeciesList<- sf::st_read(dsn = TerrADatPath ,  
+                        layer = "tblStateSpecies") 
+#Save as a dataframe
+
+TerrADat <- as.data.frame(TerrADat)
+
+LMF <- as.data.frame(LMF)
+
+TerrADat_Species <- as.data.frame(TerrADat_Species)
+
+LMF_Species <- as.data.frame(LMF_Species)
+
+
+#conn <- odbcConnect("ilmocAIMPub")
+
+#Connect to TerrADat
+
+#TerrADat <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADat;')
+
+#Connect to LMF
+#LMF <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMF;')
+
+#Connect to TerrADat Species Indicator
+#TerrADat_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADatSpeciesIndicators;')
+
+#Connect to LMF Species Indicator
+#LMF_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMFSpeciesIndicators;')
+
+#Connect to species list
+#SpeciesList <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.tblStateSpecies;')
+
+#odbcClose(conn)
 
 ```
 
@@ -170,7 +242,7 @@ TerrADat[setdiff(names(LMF_EcoSite) , names(TerrADat))] <- NA
 LMF_EcoSite[setdiff(names(TerrADat), names(LMF_EcoSite))] <- NA
 
 TDat_LMF <- rbind(TerrADat , LMF_EcoSite)
-
+EcoSiteList <- TDat_LMF$EcologicalSiteId
 #Bind LMF and TerrADat Species Indicators
 #First need names to match, TDat species got cut off (comment this out if did not first export to shapefile)
 #place NAs in non-matching columns
@@ -187,13 +259,14 @@ Caption <- paste0("Cover Summaries for Ecological Site" , EcoSite)
 TDat_LMF$DateEstablished <- sub("^(\\d{4}).*$", "\\1", TDat_LMF$DateEstablished)
 
 TDat_LMF_plots_Year <- TDat_LMF %>% 
-                    filter(!Latitude_NAD83 <= 1) %>% arrange(EcologicalSiteId) #Sorting this for the map and remove 0,0 lat lon
+                    arrange(EcologicalSiteId) #Sorting this for the map and remove 0,0 lat lon
 
 TDat_LMF_plots_Year <- TDat_LMF_plots_Year %>% rename(Year = DateEstablished)
 
 
 #Subset based on EcologicalSiteId
-EcoSitePlots <- TDat_LMF[TDat_LMF[["EcologicalSiteId"]] %in% EcoSite, ]
+#EcoSitePlots <- TDat_LMF[TDat_LMF[["EcologicalSiteId"]] %in% EcoSite, ]
+EcoSitePlots <- TDat_LMF %>% filter(EcologicalSiteId == params$EcoSite)
 EcoSitePlots <- EcoSitePlots %>% mutate(AH_SagebrushCover_Dead = AH_SagebrushCover - AH_SagebrushCover_Live)
 #for non-species indicators
 EcoSite_PKs <- EcoSitePlots$PrimaryKey
@@ -1966,8 +2039,8 @@ Height_Plot_Species_SFG_Static[["Succulent.Perennial"]]
 
 ```{r heights plot sagebrush , fig.height = 6 , fig.width = 10 , echo = FALSE , include = TRUE}
 
-SagebrushHeight_Ly <- ggplotly(Height_Plot_Sagebrush , tooltip = "text")
-SagebrushHeight_Ly
+#SagebrushHeight_Ly <- ggplotly(Height_Plot_Sagebrush , tooltip = "text")
+#SagebrushHeight_Ly
 
 ```
 
@@ -1975,7 +2048,7 @@ SagebrushHeight_Ly
 
 ```{r heights plot sagebrush static, fig.height = 6 , fig.width = 10 , echo = FALSE , include = TRUE}
 
-Height_Plot_Sagebrush_Static
+#Height_Plot_Sagebrush_Static
 
 ```
 
@@ -2057,15 +2130,15 @@ Heights_Summary_Species %>%  DT::datatable(extensions = 'Buttons', filter = "top
 
 ```{r heights table sagebrush plot, echo = FALSE , include = TRUE}
 
-Heights_Summary_Sagebrush_PerPlot %>%  DT::datatable(extensions = 'Buttons', filter = "top" , options = list(scrollX = TRUE ,
-                          dom = 'Bfrtip',
-                          buttons =
-                          list(list(
-                          extend = 'collection',
-                          buttons = c('csv', 'excel'),
-                          text = 'Download Table'))) , 
-                          caption = (paste("Heights by Sagebrush Species by plots within " , EcoSite)) ,
-                          rownames = FALSE)
+#Heights_Summary_Sagebrush_PerPlot %>%  DT::datatable(extensions = 'Buttons', filter = "top" , options = list(scrollX = TRUE ,
+                          #dom = 'Bfrtip',
+                          #buttons =
+                          #list(list(
+                          #extend = 'collection',
+                          #buttons = c('csv', 'excel'),
+                          #text = 'Download Table'))) , 
+                          #caption = (paste("Heights by Sagebrush Species by plots within " , EcoSite)) ,
+                          #rownames = FALSE)
 ```
 
 
@@ -2073,15 +2146,15 @@ Heights_Summary_Sagebrush_PerPlot %>%  DT::datatable(extensions = 'Buttons', fil
 
 ```{r heights table sagebrush site, echo = FALSE , include = TRUE}
 
-Heights_Summary_Sagebrush %>%  DT::datatable(extensions = 'Buttons', filter = "top" , options = list(scrollX = TRUE ,
-                          dom = 'Bfrtip',
-                          buttons =
-                          list(list(
-                          extend = 'collection',
-                          buttons = c('csv', 'excel'),
-                          text = 'Download Table'))) , 
-                          caption = (paste("Heights by Sagebrush Species in " , EcoSite)) ,
-                          rownames = FALSE)
+#Heights_Summary_Sagebrush %>%  DT::datatable(extensions = 'Buttons', filter = "top" , options = list(scrollX = TRUE ,
+                          #dom = 'Bfrtip',
+                          #buttons =
+                          #list(list(
+                          #extend = 'collection',
+                          #buttons = c('csv', 'excel'),
+                          #text = 'Download Table'))) , 
+                          #caption = (paste("Heights by Sagebrush Species in " , EcoSite)) ,
+                          #rownames = FALSE)
 ```
 
 # 7. Canopy Gap  {.tabset .tabset-fade .tabset-pills}
