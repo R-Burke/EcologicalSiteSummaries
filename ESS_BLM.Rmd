@@ -68,43 +68,19 @@ kableExtra, knitr, leaflet, magrittr, plotly, patternplot, raster, RColorBrewer,
 
 ##### Set your ecological site
 
-To generate these reports, you need to specify your ecological site(s) of interest. You can specify a single ecological site that is restricted by state lines or create a list of multiple ecological sites that can span political boundaries. 
-
-*Type in the ecological site id between the " " in the code below (line 80).*
+To generate these reports, you need to specify your ecological site(s) of interest. You can specify a single ecological site that is restricted by state lines or create a list of multiple ecological sites that can span political boundaries. In the "" after params: Ecosite: "" in the heading of this document, type in your ecological site of interest. This tool works best with ecological sites that have a large sample size. 
 
 ```{r file paths , echo = TRUE , include = TRUE}
 
 #Define your ecological site
 
-#EcoSite <- c("R024XY016OR")
-
 EcoSite <- params$EcoSite
-
-#If you want to summarize multiple ecological sites, list them between the ()
-#i.e. to group Sandy and Shallow sandy sites- 
-#EcoSite <- c("R042XB012NM" , "R042XB015NM")
 
 ```
 
 ##### Connect to the database
 
-The script on GitHub has file pathways omitted for security issues. You will need to copy and paste the appropriate file paths at the beginning of the script.
-
-*Copy and paste the following commands* in the code chunk starting under **line 116**.
-
-conn <- odbcConnect("ilmocAIMPub")
-
-TerrADat <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADat;')
-
-LMF <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMF;')
-
-TerrADat_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADatSpeciesIndicators;')
-
-LMF_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMFSpeciesIndicators;')
-
-SpeciesList <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.tblStateSpecies;')
-
-odbcClose(conn)
+The script on GitHub has file pathways omitted for security issues. You will need to copy and paste the appropriate file paths to set up your SQL connection below line 116 if you are internal on a BLM server (get these paths from page 15 of the R SQL for BLM users tutorial). 
 
 ``` {r ESS Demo, echo = FALSE, include = FALSE}
 
@@ -136,25 +112,8 @@ library(plotly)
 
 ```{r pub connection , echo = FALSE , include = FALSE}
 
-#Connect to TerrADat
+#### Insert SQL query below ####
 
-#Set file path to TerrADat
-
-TerrADatPath <- "C:/Users/rburke/GDBs/SDE_Export.gdb"
-                #The state species list table should also live in this geodatabase
-
-TerrADat <- rgdal::readOGR(dsn = TerrADatPath , "TerrADat")
-
-LMF <- rgdal::readOGR(dsn = TerrADatPath , "LMF")
-
-TerrADat_Species <- rgdal::readOGR(dsn = TerrADatPath , "TerrADatSpeciesIndicators")
-
-LMF_Species <- rgdal::readOGR(dsn = TerrADatPath , "LMFSpeciesIndicators")
-
-#get species list for full names
-
-SpeciesList<- sf::st_read(dsn = TerrADatPath ,  
-                        layer = "tblStateSpecies") 
 #Save as a dataframe
 
 TerrADat <- as.data.frame(TerrADat)
@@ -165,29 +124,7 @@ TerrADat_Species <- as.data.frame(TerrADat_Species)
 
 LMF_Species <- as.data.frame(LMF_Species)
 
-
-#conn <- odbcConnect("ilmocAIMPub")
-
-#Connect to TerrADat
-
-#TerrADat <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADat;')
-
-#Connect to LMF
-#LMF <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMF;')
-
-#Connect to TerrADat Species Indicator
-#TerrADat_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.TerrADatSpeciesIndicators;')
-
-#Connect to LMF Species Indicator
-#LMF_Species <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.LMFSpeciesIndicators;')
-
-#Connect to species list
-#SpeciesList <- sqlQuery(conn, 'SELECT * FROM ilmocAIMPub.ilmocAIMPubDBO.tblStateSpecies;')
-
-#odbcClose(conn)
-
 ```
-
 ##### Run the report!
 
 The rest of the report is automated and requires no edits. 
@@ -197,7 +134,6 @@ Click the Knit button and knit to an HTML. The output HTML document will be save
 #Before getting LMF&TerrADat together, rename date field in LMF to play nice
 
 LMF <- LMF %>% rename(DateEstablished = DateVisited) #this will be an issue if revists become a thing in LMF
-
 
 #LMF Ecological Site Ids do not have R or F in front... so we need to fix some things
 
